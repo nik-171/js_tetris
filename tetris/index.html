@@ -165,6 +165,14 @@
     <div>
       <button id="start-btn">Старт</button>
     </div>
+    <div>
+      <p>
+      Управление: <br>
+      ^ - поворот <br>
+      пробел - быстрое падение (hard  drop) <br>
+      ESC - пауза
+      </p>
+    </div>
   </div>
   
   <!-- Мобильные элементы управления (кнопки) -->
@@ -190,7 +198,8 @@
     let lastTime = 0;
     let dropCounter = 0;
     let nextPieceMatrix = null; // Для предпросмотра следующей фигуры
-    
+    let pause = false;
+
     // Настройка основного холста
     const canvas = document.getElementById('tetris');
     const context = canvas.getContext('2d');
@@ -491,14 +500,17 @@
     // Игровой цикл
     function update(time = 0) {
       if (!gameRunning) return;
-      const deltaTime = time - lastTime;
-      lastTime = time;
-      dropCounter += deltaTime;
-      if (dropCounter > dropInterval) {
-        playerDrop();
+      
+      if (!pause) {
+        const deltaTime = time - lastTime;
+        lastTime = time;
+        dropCounter += deltaTime;
+        if (dropCounter > dropInterval) {
+          playerDrop();
+        }
+        draw();
+        animationId = requestAnimationFrame(update); // Продолжаем обновление
       }
-      draw();
-      animationId = requestAnimationFrame(update);
     }
     
     // Обновление интерфейса
@@ -512,25 +524,33 @@
     // Обработка нажатий клавиш (для ПК)
     document.addEventListener('keydown', event => {
       if (!gameRunning) return;
+      
       switch (event.keyCode) {
         case 37: // Влево
-          playerMove(-1);
+          if (!pause) playerMove(-1);
           break;
         case 39: // Вправо
-          playerMove(1);
+          if (!pause) playerMove(1);
           break;
         case 40: // Вниз
-          playerDrop();
+          if (!pause) playerDrop();
           break;
         case 38: // Вверх – поворот
-          playerRotate();
+          if (!pause) playerRotate();
           break;
         case 32: // Пробел – hard drop
-          playerHardDrop();
+          if (!pause) playerHardDrop();
+          break;
+        case 27: // ESC – пауза/возобновление
+          pause = !pause;
+          if (!pause) {
+            lastTime = performance.now(); // Обновляем тайминг, чтобы не было скачка
+            update(); // Перезапускаем анимацию
+          }
           break;
       }
     });
-    
+
     // Кнопка "Старт" в меню
     startBtn.addEventListener('click', () => {
       dropInterval = parseInt(difficultySelect.value);

@@ -9,7 +9,7 @@
       box-sizing: border-box;
     }
     body {
-      background: #282c34;
+      background: #225;
       margin: 0;
       font-family: monospace;
       color: #61dafb;
@@ -25,7 +25,6 @@
     /* Адаптивный холст для игры */
     #tetris {
       background: #022;
-      border: 5px solid #031318;
       width: 100%;
       max-width: 240px;
       height: auto;
@@ -53,7 +52,6 @@
     }
     .info canvas {
       background: #022;
-      border: 5px solid #031318;
       display: block;
       margin-top: 5px;
     }
@@ -149,7 +147,22 @@
 
     .field {
       display: flex;
-      
+      transform: scale(1.5);
+    }
+
+    .back-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: #225; /* Цвет фона */
+      z-index: 999; /* Чуть меньше, чем у .boxxx */
+    }
+
+    canvas {
+      image-rendering: crisp-edges;
+      image-rendering: pixelated;
     }
   </style>
 </head>
@@ -157,10 +170,8 @@
   <!-- Блок информации -->
    <div class="field">
     <div class="info">
-      <div class="score">Счёт: <span id="score">0</span></div>
-      <div class="level">Уровень: <span id="level">1</span></div>
+      <canvas id="hud" width="160" height="75"></canvas>
       <div class="next">
-        <div>Следующая фигура:</div>
         <canvas id="next" width="120" height="120"></canvas>
       </div>
     </div>
@@ -172,6 +183,7 @@
   </div>
 
   <!-- Меню игры -->
+<div class="back-overlay"></div>
   <div id="menu-overlay" class="boxxx">
     <h1>Тетрис</h1>
     <div>
@@ -194,7 +206,7 @@
       </p>
     </div>
   </div>
-  
+
   <!-- Мобильные элементы управления (кнопки) -->
   <div id="mobile-controls">
     <div class="control-row">
@@ -219,6 +231,8 @@
     let dropCounter = 0;
     let nextPieceMatrix = null; // Для предпросмотра следующей фигуры
     let pause = false;
+    let score = 0;
+    let level = 1;
 
     // Настройка основного холста
     const canvas = document.getElementById('tetris');
@@ -227,11 +241,10 @@
     context.scale(scale, scale);
     
     // Элементы интерфейса
-    const scoreElement = document.getElementById('score');
-    const levelElement = document.getElementById('level');
     const menuOverlay = document.getElementById('menu-overlay');
     const difficultySelect = document.getElementById('difficulty');
     const startBtn = document.getElementById('start-btn');
+    const overlay = document.querySelector(".back-overlay"); // фон
     
     // Холст для предпросмотра следующей фигуры
     const nextCanvas = document.getElementById('next');
@@ -334,7 +347,7 @@
               context.fillStyle = mixColors(pieceColors[value], '#2f2')
               context.fillRect(x + offset.x + 0.1, y + offset.y + 0.1, 1.3, 1.14)
 
-              context.fillStyle = pieceColors[value]; // подбираем нужный оттенок через прозрачность
+              context.fillStyle = pieceColors[value];
               context.fillRect(x + offset.x + 0.1, y + offset.y + 0.1, 1, 1);
 
               context.fillStyle = mixColors(pieceColors[value], '#ffffff', 0.7); // Рисуем сам блок
@@ -358,19 +371,19 @@
     
     function draw() {
       // Цвет фона
-      context.fillStyle = '#022';
+      context.fillStyle = '#090915';
       context.fillRect(0, 0, canvas.width, canvas.height);
     
       drawShadow(); // Отрисовываем тень рамки
     
-      // отрисовка текущей фигуры
-      drawMatrix(arena, { x: 0, y: 0 });
-    
       // Тень
       drawGhost();
-    
+
       // Фигура
       drawMatrix(player.matrix, player.pos);
+
+      // отрисовка текущей фигуры
+      drawMatrix(arena, { x: 0, y: 0 });
     }
     
     // отрисовка псевдотени для игрового поля
@@ -379,19 +392,11 @@
       const dx = Math.cos(radians) * cellSize; // Смещение по X
       const dy = Math.sin(radians) * cellSize; // Смещение по Y
   
-      context.strokeStyle = "#050";
+      context.strokeStyle = "#090915";
       context.lineWidth = 13;
   
-      // Рисуем линии под углом
-      for (let i = -canvas.height; i < canvas.width; i += cellSize) {
-          context.beginPath();
-          context.moveTo(i, -6);
-          context.lineTo(i + dx * (canvas.height / dy), canvas.height);
-          context.stroke();
-      }
-  
-      // Светлая тень
-      context.strokeStyle = "#2f2";
+      // верхняя тень
+      context.strokeStyle = "#11112b";
   
       for (let i = -canvas.height; i < canvas.width; i += cellSize) {
           context.beginPath();
@@ -400,16 +405,85 @@
           context.stroke();
       }
 
-      context.fillStyle = '#05f';
-      context.fillRect(1, 0.49, 100, 100);
+      context.fillStyle = '#151535';
+      context.fillRect(1.5, 0.74, 100, 100);
+    }
+
+    // отрисовка псевдотени для окна предпросмотра
+    function drawShadowNext(angle = 30, cellSize = 2) {
+      const radians = (Math.PI / 180) * angle; // Конвертируем угол в радианы
+      const dx = Math.cos(radians) * cellSize; // Смещение по X
+      const dy = Math.sin(radians) * cellSize; // Смещение по Y
+  
+      nextContext.lineWidth = 13;
+    
+      // верхняя тень
+      nextContext.strokeStyle = "#090915";
+  
+      for (let i = -nextCanvas.height; i < nextCanvas.width; i += cellSize) {
+          nextContext.beginPath();
+          nextContext.moveTo(i, -71);
+          nextContext.lineTo(i + dx * (nextCanvas.height / dy) + 150, nextCanvas.height);
+          nextContext.stroke();
+      }
+
+      nextContext.fillStyle = '#151535';
+      nextContext.fillRect(20, 11, 150, 150);
     }
   
+    function drawPause() {
+      context.clearRect(0, 0, canvas.height, canvas.width)
+
+      context.fillStyle = '#090915';
+      context.fillRect(0, 0, canvas.width, canvas.height);
+
+      drawShadow();
+
+      context.font = "0.5px Monospace"; // Размер и шрифт
+
+      context.textBaseline = "middle"; // Базовая линия
+
+      // Рисуем текст в центре
+      context.fillStyle = '#000'
+      context.fillRect((canvas.height / 100) - 2.9, (canvas.width / 100) + 7.2, 10, 0.85)
+      context.fillStyle = '#ff0000'; // Цвет текста
+
+      context.fillText("кто двинется тот [ДАННЫЕ УДАЛЕНЫ]", (canvas.height / 100) - 2.9, (canvas.width / 100) + 7.5);
+    }
+
+    // отрисовка блока информаци
+    function drawPixelInfo() {
+      const canvas = document.getElementById("hud"); // Берём холст
+      const ctx = canvas.getContext("2d");
+
+      ctx.imageSmoothingEnabled = false; // Отключаем сглаживание (чистые пиксели)
+      ctx.clearRect(0, 0, canvas.width, canvas.height); // Чистим холст
+      ctx.fillStyle = '#225'
+      ctx.fillRect(0, 0, 200, 80)
+      ctx.font = "16px monospace"; // Пиксельный шрифт
+      ctx.textBaseline = "top";
+    
+      // Данные
+    
+      // Отрисовка текста (с тенью)
+      ctx.fillStyle = "#000"; // Тень
+      ctx.fillText(`SCORE: ${score}`, 12, 12);
+      ctx.fillText(`LVL: ${level}`, 12, 32);
+      ctx.fillText(`NEXT:`, 12, 52);
+    
+      ctx.fillStyle = "#61dafb"; // Основной цвет
+      ctx.fillText(`SCORE: ${score}`, 10, 10);
+      ctx.fillText(`LVL: ${level}`, 10, 30);
+      ctx.fillText(`NEXT:`, 10, 50);
+    }    
   
-    
-    
+    // Автоматически обновлять инфо
+    setInterval(drawPixelInfo, 100);
+  
+
     // Отрисовка следующей фигуры в окне предпросмотра
     function drawNextPiece() {
-      nextContext.fillStyle = '#022';
+      nextContext.fillStyle = '#11112b';
       nextContext.fillRect(0, 0, nextCanvas.width, nextCanvas.height);
       const piece = nextPieceMatrix;
       const rows = piece.length;
@@ -418,13 +492,19 @@
       const previewHeight = nextCanvas.height / previewScale;
       const offsetX = Math.floor((previewWidth - cols) / 2);
       const offsetY = Math.floor((previewHeight - rows) / 2);
+      drawShadowNext();
       piece.forEach((row, y) => {
         row.forEach((value, x) => {
           if (value !== 0) {
-            nextContext.fillStyle = mixColors(pieceColors[value], '#ffffff', 0.5); // подбираем нужный оттенок через прозрачность
+            
+            nextContext.fillStyle = mixColors(pieceColors[value], '#2f2', 0.7); // Рисуем тень блока
+            nextContext.fillRect((x + offsetX + 0.1) * previewScale, (y + offsetY + 0.1) * previewScale, 25.5, 23);
+
+            nextContext.fillStyle = pieceColors[value]; // полутень блока
             nextContext.fillRect((x + offsetX + 0.1) * previewScale, (y + offsetY + 0.1) * previewScale, 20, 20);
-            nextContext.fillStyle = pieceColors[value]; // Рисуем сам блок
-            nextContext.fillRect((x + offsetX + 0.1) * previewScale, (y + offsetY + 0.1) * previewScale, 16, 16);
+
+            nextContext.fillStyle = mixColors(pieceColors[value], '#ffffff', 0.7); // центр блока
+            nextContext.fillRect((x + offsetX + 0.1) * previewScale, (y + offsetY + 0.1) * previewScale, 17.5, 17.5);
           }
         });
       });
@@ -601,10 +681,10 @@
     
     // Обновление интерфейса
     function updateScore() {
-      scoreElement.innerText = player.score;
+      score = player.score;
     }
     function updateLevel() {
-      levelElement.innerText = player.level;
+      level = player.level;
     }
     
     // Обработка нажатий клавиш (для ПК)
@@ -633,12 +713,14 @@
             lastTime = performance.now(); // Обновляем тайминг, чтобы не было скачка
             update(); // Перезапускаем анимацию
           }
+          drawPause();
           break;
       }
     });
 
     // Кнопка "Старт" в меню
     startBtn.addEventListener('click', () => {
+      overlay.style.display = "none"; // Скрываем фон при нажатии
       dropInterval = parseInt(difficultySelect.value);
       arena.forEach(row => row.fill(0));
       player.score = 0;

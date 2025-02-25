@@ -222,7 +222,7 @@ function drawPause() {
   context.fillRect((canvas.height / 100) - 2.9, (canvas.width / 100) + 7.2, 10, 0.85)
   context.fillStyle = '#ff0000'; // Цвет текста
 
-  context.fillText("PAUSE", (canvas.height / 100) + 1.3, (canvas.width / 100) + 7.5);
+  context.fillText("t.me/nik_17171", (canvas.height / 100) + 0.1, (canvas.width / 100) + 7.5);
 }
 
 // отрисовка блока информаци
@@ -405,10 +405,15 @@ function playerHardDrop() {
   while (!collide(arena, { matrix: player.matrix, pos: { x: player.pos.x, y: player.pos.y + 1 } })) {
     player.pos.y++;
   }
-  merge(arena, player);
-  playerReset();
-  arenaSweep();
-  updateScore();
+  setTimeout(() => {
+    while (!collide(arena, { matrix: player.matrix, pos: { x: player.pos.x, y: player.pos.y + 1 } })) {
+      player.pos.y++;
+    }
+    merge(arena, player);
+    playerReset();
+    arenaSweep();
+    updateScore();
+  }, 300);
   dropCounter = 0;
 }
 
@@ -488,6 +493,12 @@ document.addEventListener('keydown', event => {
       }
       drawPause();
       break;
+
+    // для удобных тестов. возможно потом вырежу
+    case 82: // R
+      stopGame();
+      startBtn.click();
+      break;
   }
 });
 
@@ -516,6 +527,7 @@ function stopGame() {
     animationId = null;
   }
   menuOverlay.style.display = 'flex';
+  overlay.style.display = 'flex'
 }
 
 // Обработка нажатий на мобильных кнопках

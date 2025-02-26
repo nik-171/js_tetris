@@ -405,17 +405,22 @@ function playerHardDrop() {
   while (!collide(arena, { matrix: player.matrix, pos: { x: player.pos.x, y: player.pos.y + 1 } })) {
     player.pos.y++;
   }
-  setTimeout(() => {
-    while (!collide(arena, { matrix: player.matrix, pos: { x: player.pos.x, y: player.pos.y + 1 } })) {
-      player.pos.y++;
+
+  // говнокод, но он работает как надо
+  let dropInterval = setInterval(() => {
+    if (!collide(arena, { matrix: player.matrix, pos: { x: player.pos.x, y: player.pos.y + 1 } })) {
+      
+    } else {
+      clearInterval(dropInterval); // Останавливаем цикл, если фигура уперлась
+      merge(arena, player);
+      playerReset();
+      arenaSweep();
+      updateScore();
     }
-    merge(arena, player);
-    playerReset();
-    arenaSweep();
-    updateScore();
-  }, 300);
+  }, 200);
   dropCounter = 0;
 }
+
 
 // Передвижение фигуры влево/вправо
 function playerMove(dir) {

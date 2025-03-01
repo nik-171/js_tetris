@@ -92,8 +92,12 @@
     /* Медиазапрос для небольших экранов */
     @media (max-width: 480px) {
       body {
-        background-color: #2f2;
-        padding-top: 20%;
+        font-size: 14px;
+        padding-top: 15%;
+      }
+
+      .field {
+        transform: scale(0.8);
       }
 
       #menu-overlay h1 {
@@ -112,7 +116,7 @@
     }
     
     /* Для экранов шириной меньше 768px (мобильные устройства) */
-    @media (max-width: 768px) {
+    @media (min-width: 480px) and (max-width: 768px) {
       body {
         font-size: 14px;
         padding-top: 15%;

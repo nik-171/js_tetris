@@ -8,6 +8,7 @@
     * {
       box-sizing: border-box;
     }
+
     body {
       background: #225;
       margin: 0;
@@ -21,6 +22,7 @@
       justify-content: center;
       padding-top: 10%;
     }
+
     /* Адаптивный холст для игры */
     #tetris {
       background: #022;
@@ -29,6 +31,7 @@
       height: auto;
       image-rendering: pixelated;
     }
+    
     .canvas-wrapper {
       position: relative;
       width: 240px;
@@ -43,39 +46,43 @@
       font-size: 20px;
       line-height: 1.5;
     }
+
     .info .next {
       margin-top: 10px;
     }
+
     .info canvas {
       display: block;
     }
+
     /* Меню игры (только кнопка «Старт») */
     #menu-overlay h1 {
       font-size: 2.5em;
       margin-bottom: 20px;
     }
+
     #menu-overlay label {
       font-size: 1.2em;
     }
+
     #menu-overlay select,
     #menu-overlay button {
       font-size: 1.2em;
       padding: 10px 20px;
       margin: 10px;
     }
+
     /* Мобильные элементы управления (набор кнопок) */
     #mobile-controls {
-      position: fixed;
-      bottom: 10px;
-      left: 50%;
-      transform: translateX(-50%);
       z-index: 30;
       display: none; /* Показываем только на touch-устройствах */
       text-align: center;
     }
+
     #mobile-controls .control-row {
       margin: 5px;
     }
+
     #mobile-controls button {
       font-size: 20px;
       padding: 10px 15px;
@@ -89,6 +96,7 @@
     #mobile-controls button:active {
       background: #888;
     }
+
     /* Медиазапрос для небольших экранов */
     @media (max-width: 480px) {
       body {
@@ -97,22 +105,12 @@
       }
 
       .field {
-        transform: scale(0.9);
+        transform: scale(0.8);
       }
 
-      #menu-overlay h1 {
-        font-size: 2em;
-      }
-      #menu-overlay label,
-      #menu-overlay select,
-      #menu-overlay button {
-        font-size: 1em;
-        padding: 8px 16px;
-      }
       #mobile-controls button {
-        font-size: 18px;
-        padding: 8px 12px;
-      
+        height: 70px;
+        width: 70px;
       }
     }
 
@@ -147,6 +145,11 @@
 
       .boxxx {
         font-size: 1em;
+      }
+
+      #mobile-controls button {
+        height: 70px;
+        width: 70px;
       }
     }
 
@@ -207,6 +210,26 @@
       image-rendering: crisp-edges;
       image-rendering: pixelated;
     }
+
+    .control-row-left {
+      display: flex;
+      flex-direction: row;
+    }
+
+    .controls-left {
+      flex-direction: column;
+      position: fixed;
+      bottom: 10%;
+      left: 5%;
+    }
+
+    .control-row-right {
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      bottom: 10%;
+      right: 5%;
+    }
   </style>
 </head>
 <body>
@@ -254,15 +277,15 @@
 
   <!-- Мобильные элементы управления (кнопки) -->
   <div id="mobile-controls">
-    <div class="control-row">
+    <div class="controls-left">
+      <div class="control-row-left">
+          <button id="left-btn">←</button>
+          <button id="right-btn">→</button>
+      </div>
+      <button id="down-btn" >↓</button>
+    </div>
+    <div class="control-row-right">
       <button id="rotate-btn">⟳</button>
-    </div>
-    <div class="control-row">
-      <button id="left-btn">←</button>
-      <button id="down-btn">↓</button>
-      <button id="right-btn">→</button>
-    </div>
-    <div class="control-row">
       <button id="harddrop-btn">⮟</button>
     </div>
   </div>

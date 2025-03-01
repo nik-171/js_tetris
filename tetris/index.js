@@ -406,7 +406,8 @@ function playerHardDrop() {
     player.pos.y++;
   }
 
-  // говнокод, но он работает как надо
+  // НЕ РАБОТАЕТ КАК НАДО СВОЛОЧЬ
+  //    \/  \/  \/
   let dropInterval = setInterval(() => {
     if (!collide(arena, { matrix: player.matrix, pos: { x: player.pos.x, y: player.pos.y + 1 } })) {
       

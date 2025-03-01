@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Тетрис на JS</title>
   <style>
     /* Общие стили и сброс отступов */
@@ -19,8 +19,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      min-height: 100vh;
-      padding: 10px;
+      padding-top: 10%;
     }
     /* Адаптивный холст для игры */
     #tetris {
@@ -35,10 +34,7 @@
       width: 240px;
       height: 400px;
     }
-    .canvas-wrapper canvas {
-      width: 100%;
-      height: 100%;
-    }
+    
     /* Блок информации: счёт, уровень и предпросмотр следующей фигуры */
     .info {
       top: 20px;
@@ -51,9 +47,7 @@
       margin-top: 10px;
     }
     .info canvas {
-      background: #022;
       display: block;
-      margin-top: 5px;
     }
     /* Меню игры (только кнопка «Старт») */
     #menu-overlay h1 {
@@ -116,6 +110,45 @@
         padding: 8px 12px;
       }
     }
+    
+    /* Для экранов шириной меньше 768px (мобильные устройства) */
+    @media (max-width: 768px) {
+      body {
+        font-size: 14px;
+        padding-top: 30%;
+      }
+
+      .field {
+      transform: scale(0.8);
+      }
+    }
+
+    /* Для экранов шириной от 769px до 1024px (планшеты) */
+    @media (min-width: 769px) and (max-width: 1024px) {
+      body {
+        font-size: 15px;
+        padding-top: 25%;
+      }
+
+      .field {
+        transform: scale(1.3);
+      }
+
+      .boxxx {
+        font-size: 1em;
+      }
+    }
+
+    /* Для больших экранов (настольные компьютеры) */
+    @media (min-width: 1025px) {
+      body {
+        font-size: 18px;
+      }
+
+      .field {
+        transform: scale(1.5);
+      }
+    }
 
     .boxxx {
       z-index: 1000;
@@ -147,7 +180,6 @@
 
     .field {
       display: flex;
-      transform: scale(1.5);
     }
 
     .back-overlay {
@@ -188,7 +220,7 @@
     <h1>Tetris</h1>
     <div>
       <label for="difficulty">Difficulty: </label>
-      <select id="difficulty">
+      <select id="difficulty" class="diff">
         <option value="1000">Eazy</option>
         <option value="700">Medium</option>
         <option value="400">Hard</option>
